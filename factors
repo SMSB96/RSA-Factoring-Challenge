@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+# Factors Challenge Script
+
+calculate_product()
+{
+	if [ $# -ne 3 ]; then
+		local args=("$@")
+		local count=0
+		local num2=1
+		for a in "${args[@]}"; do
+			if [ $count -gt 1 ]; then
+				num2=$(echo "$a * $num2" | bc)
+			fi
+			count=$((count + 1))
+		done
+	else
+		num2=$3
+	fi
+
+	local num1=$2
+	local num=$(echo "$1" | tr ':' '=')
+
+	local result=$(echo "if($num2 > $num1) 1 else 0" | bc)
+	if ((result == 1)); then
+		local numcp=$num1
+		num1=$num2
+		num2=$numcp
+	fi
+
+	echo "$num$num1*$num2"
+}
+
+if [ $# -ne 1 ]; then
+	echo 'Usage: factors <file>'
+	exit 1
+else
+	while read -r number; do
+		factors_result=$(factor "$number")
+		calculate_product $factors_result
+	done < "$1"
+fi
+
